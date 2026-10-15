@@ -72,46 +72,46 @@ alter policy "scoped pay read" on public.pay_items using (
     (select public.my_manager_dealerships()), (select public.my_member_keys()), (select public.my_rep_keys())));
 
 alter policy "members see own or managed appointments" on public.appointments using (
-  dealership_id = any((select public.my_manager_dealerships()))
-  or (dealership_id::text || ':' || member_id::text) = any((select public.my_member_keys()))
-  or (dealership_id::text || ':' || rep_id) = any((select public.my_rep_keys())));
+  dealership_id = any((select public.my_manager_dealerships())::uuid[])
+  or (dealership_id::text || ':' || member_id::text) = any((select public.my_member_keys())::text[])
+  or (dealership_id::text || ':' || rep_id) = any((select public.my_rep_keys())::text[]));
 
 alter policy "dealers read own dashboard" on public.rep_dashboards using (
-  dealership_id = any((select public.my_manager_dealerships()))
-  or (dealership_id::text || ':' || member_id::text) = any((select public.my_member_keys()))
-  or (dealership_id::text || ':' || rep_id) = any((select public.my_rep_keys())));
+  dealership_id = any((select public.my_manager_dealerships())::uuid[])
+  or (dealership_id::text || ':' || member_id::text) = any((select public.my_member_keys())::text[])
+  or (dealership_id::text || ':' || rep_id) = any((select public.my_rep_keys())::text[]));
 
 alter policy "members see own or managed calendar events" on public.calendar_events using (
-  dealership_id = any((select public.my_manager_dealerships()))
-  or (dealership_id::text || ':' || member_id::text) = any((select public.my_member_keys())));
+  dealership_id = any((select public.my_manager_dealerships())::uuid[])
+  or (dealership_id::text || ':' || member_id::text) = any((select public.my_member_keys())::text[]));
 
 alter policy "managers all, reps own or unassigned work orders" on public.work_orders using (
-  dealership_id = any((select public.my_manager_dealerships()))
-  or (dealership_id::text || ':' || member_id::text) = any((select public.my_member_keys()))
-  or (member_id is null and dealership_id = any((select public.my_dealerships()))));
+  dealership_id = any((select public.my_manager_dealerships())::uuid[])
+  or (dealership_id::text || ':' || member_id::text) = any((select public.my_member_keys())::text[])
+  or (member_id is null and dealership_id = any((select public.my_dealerships())::uuid[])));
 
 alter policy "own ledger or capable manager" on public.rep_ledger_entries using (
-  dealership_id = any((select public.my_ledger_manager_dealerships()))
-  or (dealership_id::text || ':' || member_id::text) = any((select public.my_member_keys()))
-  or (dealership_id::text || ':' || rep_id) = any((select public.my_rep_keys())));
+  dealership_id = any((select public.my_ledger_manager_dealerships())::uuid[])
+  or (dealership_id::text || ':' || member_id::text) = any((select public.my_member_keys())::text[])
+  or (dealership_id::text || ':' || rep_id) = any((select public.my_rep_keys())::text[]));
 
 alter policy "members read teammates" on public.members using (
-  (dealership_id = any((select public.my_dealerships())) and status <> 'removed') or user_id = (select auth.uid()));
+  (dealership_id = any((select public.my_dealerships())::uuid[]) and status <> 'removed') or user_id = (select auth.uid()));
 
-alter policy "members read own dealership" on public.dealerships using (id = any((select public.my_dealerships())));
+alter policy "members read own dealership" on public.dealerships using (id = any((select public.my_dealerships())::uuid[]));
 
 alter policy "own or managed submissions" on public.deal_submissions using (
-  dealership_id = any((select public.my_manager_dealerships()))
-  or (dealership_id = any((select public.my_dealerships()))
+  dealership_id = any((select public.my_manager_dealerships())::uuid[])
+  or (dealership_id = any((select public.my_dealerships())::uuid[])
       and member_id in (select m.id from public.members m where m.user_id = (select auth.uid()))));
 
-alter policy "managers read dealership docs" on public.dealership_documents using (dealership_id = any((select public.my_manager_dealerships())));
-alter policy "managers read onboarding" on public.dealership_onboarding using (dealership_id = any((select public.my_manager_dealerships())));
-alter policy "managers read invites" on public.invites using (dealership_id = any((select public.my_manager_dealerships())));
+alter policy "managers read dealership docs" on public.dealership_documents using (dealership_id = any((select public.my_manager_dealerships())::uuid[]));
+alter policy "managers read onboarding" on public.dealership_onboarding using (dealership_id = any((select public.my_manager_dealerships())::uuid[]));
+alter policy "managers read invites" on public.invites using (dealership_id = any((select public.my_manager_dealerships())::uuid[]));
 
 alter policy "members read their dealership financing" on public.financing_options using (
   ((dealership_id is null) and ((select public.is_any_member()) or (select public.is_ayvo_admin())))
-  or ((dealership_id is not null) and (dealership_id = any((select public.my_dealerships())) or (select public.is_ayvo_admin()))));
+  or ((dealership_id is not null) and (dealership_id = any((select public.my_dealerships())::uuid[]) or (select public.is_ayvo_admin()))));
 
 alter policy "members read resources" on public.resources using (
   active and (((audience = 'all') and (select public.is_any_member())) or ((audience = 'managers') and (select public.is_any_manager()))));

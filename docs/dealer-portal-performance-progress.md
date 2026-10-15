@@ -6,7 +6,8 @@ Lovable project: Dealers (`51258854-583d-48bc-ba00-6c811088a9f5`)
 | # | Phase | Status | Lovable commit | Notes |
 |---|---|---|---|---|
 | 1 | Navigation: auth check, cache, preload, loaders, skeletons | **done** | `bc22124` | 329/329 tests pass; all 13 loader keys verified to match page keys |
-| 2 | RLS + indexes migration (plan Phase 3) | in progress | — | new rules proven equivalent: 116 simulated scenarios, 18,363 rows, 0 mismatches |
+| 2 | RLS + indexes migration (plan Phase 3) | in progress | — | new rules proven equivalent: 116 simulated scenarios, 18,363 rows, 0 mismatches. Dry run (rolled back): admin deals+appointments 279 ms → 15 ms, same 326 deals |
+| 1b | Fix: stale data on admin dealership switch; cache reset only on real user change | **done** | `e8a83e5`, `369031e` | 329/329 tests pass |
 | 3 | Single viewer RPC + parallel queries (plan Phase 2) | pending | — | |
 | 4 | Dashboard summary + lean lists (plan Phase 2.6) | pending | — | |
 | 5 | Lender Hub off hot path (plan Phase 4) | pending | — | |
@@ -25,3 +26,5 @@ _(addressed before continuing the plan)_
 - **No dealer is linked to a login yet**: 0 of 29 members have a `user_id`; all are `invited`. Only the 4 Ayvo admins can use the portal today. Dealer-visibility rules were therefore validated by simulating each member (rep / manager / manager+ledger capability / two dealerships) inside a rolled-back transaction.
 - Phase 1 note: NewDealPage uses `useQuery` (not suspense), so its loader only warms the cache. That's fine.
 - Pre-existing: query keys don't include the dealership id. Admin dealership switching calls `invalidateQueries()`, which refetches, but the old dealership's cached data can flash briefly. Follow-up: clear `["real"]` queries on switch.
+- First migration attempt was rejected by Postgres (`uuid = uuid[]`): `= any((select fn()))` reads as a subquery, not an array. Fixed with explicit `::uuid[]` / `::text[]` casts; nothing had been applied (the migration rolled back as a whole).
+- Supabase re-emits SIGNED_IN on tab focus. The cache now resets only when the signed-in user actually changes, so switching back to the app no longer reloads everything.
