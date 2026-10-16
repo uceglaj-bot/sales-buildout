@@ -10,8 +10,8 @@ Lovable project: Dealers (`51258854-583d-48bc-ba00-6c811088a9f5`)
 | 1b | Fix: stale data on admin dealership switch; cache reset only on real user change | **done** | `e8a83e5`, `369031e` | 329/329 tests pass |
 | 3 | Single viewer RPC + parallel queries (plan Phase 2) | **done** | `14071f1` (migration 0023) | Caller lookup: 4 serial DB trips → 1 RPC (~1 ms warm, 48 ms cold, timed live for each admin). Dashboard 3 serial steps → 1; deal sheet 2 → 1; pay 3 → 2; appointments up to 9 → 3–4. 333/333 tests pass (4 new), typecheck clean. Anon cannot call the RPC |
 | 4 | Dashboard summary + lean lists (plan Phase 2.6) | **done** | `a9932c6` | getDashboard response 188,149 → 1,823 bytes (−99%); listDeals 203,619 → 135,759 bytes (−33%), measured on the largest dealership. Summary verified against the old in-browser math (new test). DashboardPage markup reviewed: unchanged. Viewer-mutation fix included. 337/337 tests pass, typecheck clean |
-| 5 | Lender Hub off hot path (plan Phase 4) | in progress (sent 06:24 UTC) | — | `lender_hub_cache` table + 3-layer cache (memory → table, 30 min fresh / stale-while-revalidate → live) written with unit tests. Lovable couldn't read the existing cron secret, so it added a dedicated `/api/public/hooks/lender-hub` route using the platform's managed cron auth. The 10-minute schedule was **approved by Austin**. Also makes HR access refresh at sign-in non-blocking |
-| 6 | Fonts, SW asset cache, bundle (plan Phase 5) | pending | — | |
+| 5 | Lender Hub off hot path (plan Phase 4) | **done** | `640d92b` | Cache seeded: 1 catalog (5 lenders) + 5 AVL rows. New Deal/Resources Bank Portal load: **4.2–5.4 s live → ~0.7 s from table (sandbox, incl. connection start) → ~1 ms in memory**. 10-min refresh runs via new `/api/public/hooks/lender-hub` (managed cron auth, schedule approved by Austin). Sign-in no longer waits on Ayvo HR. 342/342 tests pass, typecheck clean |
+| 6 | Fonts, SW asset cache, bundle (plan Phase 5) + `waitUntil` fix | in progress (sent) | — | |
 
 ## Baseline (before any change, 2026-10-15)
 
