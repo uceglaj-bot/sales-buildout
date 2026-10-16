@@ -11,7 +11,7 @@ Lovable project: Dealers (`51258854-583d-48bc-ba00-6c811088a9f5`)
 | 3 | Single viewer RPC + parallel queries (plan Phase 2) | **done** | `14071f1` (migration 0023) | Caller lookup: 4 serial DB trips → 1 RPC (~1 ms warm, 48 ms cold, timed live for each admin). Dashboard 3 serial steps → 1; deal sheet 2 → 1; pay 3 → 2; appointments up to 9 → 3–4. 333/333 tests pass (4 new), typecheck clean. Anon cannot call the RPC |
 | 4 | Dashboard summary + lean lists (plan Phase 2.6) | **done** | `a9932c6` | getDashboard response 188,149 → 1,823 bytes (−99%); listDeals 203,619 → 135,759 bytes (−33%), measured on the largest dealership. Summary verified against the old in-browser math (new test). DashboardPage markup reviewed: unchanged. Viewer-mutation fix included. 337/337 tests pass, typecheck clean |
 | 5 | Lender Hub off hot path (plan Phase 4) | **done** | `640d92b` | Cache seeded: 1 catalog (5 lenders) + 5 AVL rows. New Deal/Resources Bank Portal load: **4.2–5.4 s live → ~0.7 s from table (sandbox, incl. connection start) → ~1 ms in memory**. 10-min refresh runs via new `/api/public/hooks/lender-hub` (managed cron auth, schedule approved by Austin). Sign-in no longer waits on Ayvo HR. 342/342 tests pass, typecheck clean |
-| 6 | Fonts, SW asset cache, bundle (plan Phase 5) + `waitUntil` fix | in progress (sent) | — | |
+| 6 | Fonts, SW asset cache, bundle (plan Phase 5) + `waitUntil` fix | **done** | `565a09f` | Fonts self-hosted (Google Fonts links removed, Manrope preloaded). Service worker caches hashed `/assets/` cache-first (cap 60). `runInBackground` uses `waitUntil` when the platform provides it (not confirmed on the published runtime; falls back to the old behaviour). Bundle: no heavy library in the client build; largest chunk 112 kB gz. 341 tests pass (342 last phase), typecheck clean |
 
 ## Baseline (before any change, 2026-10-15)
 
@@ -34,3 +34,5 @@ _(addressed before continuing the plan)_
 - Scheduled jobs call the **published** app (`ayvo-deal-buddy.lovable.app`), not the preview. So the new 10-minute Lender Hub refresh job does nothing until Publish. The cache falls back to a live fetch, so nothing breaks in the meantime.
 - Phase 5 prep: every Manrope weight (400–800) is used, so the plan is self-hosted variable fonts (one file), not dropping weights. The Google Fonts CSS itself answers in ~100 ms; the win is removing the third-party connection that blocks first paint.
 - Follow-up queued: on Cloudflare Workers, un-awaited promises can be cancelled once the response is sent. The HR access refresh at sign-in (now fire-and-forget) updates member capabilities, so it must run via `waitUntil`, not a bare `void`. The cache's background refresh is also covered by the 10-minute job.
+
+## Status: all planned phases complete (2026-10-16). Remaining: owner clicks **Publish** in Lovable.
