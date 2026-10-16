@@ -9,8 +9,8 @@ Lovable project: Dealers (`51258854-583d-48bc-ba00-6c811088a9f5`)
 | 2 | RLS + indexes migration (plan Phase 3) | **done** | `0de3c06` (migration 0022) | new rules proven equivalent: 116 simulated scenarios, 18,363 rows, 0 mismatches. Dry run (rolled back): admin deals+appointments 279 ms → 15 ms, same 326 deals. Post-apply live check through real RLS as `authenticated`: 87 scenarios, 0 mismatches. 329/329 tests pass |
 | 1b | Fix: stale data on admin dealership switch; cache reset only on real user change | **done** | `e8a83e5`, `369031e` | 329/329 tests pass |
 | 3 | Single viewer RPC + parallel queries (plan Phase 2) | **done** | `14071f1` (migration 0023) | Caller lookup: 4 serial DB trips → 1 RPC (~1 ms warm, 48 ms cold, timed live for each admin). Dashboard 3 serial steps → 1; deal sheet 2 → 1; pay 3 → 2; appointments up to 9 → 3–4. 333/333 tests pass (4 new), typecheck clean. Anon cannot call the RPC |
-| 4 | Dashboard summary + lean lists (plan Phase 2.6) | in progress (sent 04:50 UTC) | — | Measured payloads: Dashboard ships 190 kB of deal rows (243 deals) just to count them; Appointments 467 kB (584 rows) |
-| 5 | Lender Hub off hot path (plan Phase 4) | pending | — | |
+| 4 | Dashboard summary + lean lists (plan Phase 2.6) | **done** | `a9932c6` | getDashboard response 188,149 → 1,823 bytes (−99%); listDeals 203,619 → 135,759 bytes (−33%), measured on the largest dealership. Summary verified against the old in-browser math (new test). DashboardPage markup reviewed: unchanged. Viewer-mutation fix included. 337/337 tests pass, typecheck clean |
+| 5 | Lender Hub off hot path (plan Phase 4) | in progress | — | |
 | 6 | Fonts, SW asset cache, bundle (plan Phase 5) | pending | — | |
 
 ## Baseline (before any change, 2026-10-15)
