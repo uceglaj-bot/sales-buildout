@@ -10,7 +10,7 @@ Lovable project: Dealers (`51258854-583d-48bc-ba00-6c811088a9f5`)
 | 1b | Fix: stale data on admin dealership switch; cache reset only on real user change | **done** | `e8a83e5`, `369031e` | 329/329 tests pass |
 | 3 | Single viewer RPC + parallel queries (plan Phase 2) | **done** | `14071f1` (migration 0023) | Caller lookup: 4 serial DB trips → 1 RPC (~1 ms warm, 48 ms cold, timed live for each admin). Dashboard 3 serial steps → 1; deal sheet 2 → 1; pay 3 → 2; appointments up to 9 → 3–4. 333/333 tests pass (4 new), typecheck clean. Anon cannot call the RPC |
 | 4 | Dashboard summary + lean lists (plan Phase 2.6) | **done** | `a9932c6` | getDashboard response 188,149 → 1,823 bytes (−99%); listDeals 203,619 → 135,759 bytes (−33%), measured on the largest dealership. Summary verified against the old in-browser math (new test). DashboardPage markup reviewed: unchanged. Viewer-mutation fix included. 337/337 tests pass, typecheck clean |
-| 5 | Lender Hub off hot path (plan Phase 4) | in progress | — | |
+| 5 | Lender Hub off hot path (plan Phase 4) | in progress (sent 06:24 UTC) | — | Mid-build: `lender_hub_cache` table exists; cron job not yet added. Also makes HR access refresh at sign-in non-blocking |
 | 6 | Fonts, SW asset cache, bundle (plan Phase 5) | pending | — | |
 
 ## Baseline (before any change, 2026-10-15)
@@ -31,3 +31,5 @@ _(addressed before continuing the plan)_
 - Phase 2 side effect (flagged by Lovable): `requireAppointment` mutates the viewer in place for a rep acting on another dealership's appointment. Because the viewer is now memoized per request, the change sticks for the rest of that one call (never across requests). Harmless today (one appointment per call), but it will be fixed in the next code change by cloning instead of mutating.
 - `pay_items.deal_id` has no foreign key to `deals`, so deal names can't be embedded. They still come from one extra read after the pay items load.
 - Live (published) app is `ayvo-deal-buddy.lovable.app`, which is still the old build until Publish. Sign-in page: TTFB 0.8–1.8 s, 13 JS/CSS files, **233 kB compressed** (826 kB raw). Checked the client bundle for server secrets/server-only code: none (the 58 kB `portal.functions` chunk is the Supabase client library).
+- Scheduled jobs call the **published** app (`ayvo-deal-buddy.lovable.app`), not the preview. So the new 10-minute Lender Hub refresh job does nothing until Publish. The cache falls back to a live fetch, so nothing breaks in the meantime.
+- Phase 5 prep: every Manrope weight (400–800) is used, so the plan is self-hosted variable fonts (one file), not dropping weights. The Google Fonts CSS itself answers in ~100 ms; the win is removing the third-party connection that blocks first paint.
