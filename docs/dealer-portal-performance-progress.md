@@ -8,7 +8,7 @@ Lovable project: Dealers (`51258854-583d-48bc-ba00-6c811088a9f5`)
 | 1 | Navigation: auth check, cache, preload, loaders, skeletons | **done** | `bc22124` | 329/329 tests pass; all 13 loader keys verified to match page keys |
 | 2 | RLS + indexes migration (plan Phase 3) | **done** | `0de3c06` (migration 0022) | new rules proven equivalent: 116 simulated scenarios, 18,363 rows, 0 mismatches. Dry run (rolled back): admin deals+appointments 279 ms → 15 ms, same 326 deals. Post-apply live check through real RLS as `authenticated`: 87 scenarios, 0 mismatches. 329/329 tests pass |
 | 1b | Fix: stale data on admin dealership switch; cache reset only on real user change | **done** | `e8a83e5`, `369031e` | 329/329 tests pass |
-| 3 | Single viewer RPC + parallel queries (plan Phase 2) | pending | — | |
+| 3 | Single viewer RPC + parallel queries (plan Phase 2) | in progress | — | `portal_viewer_context()` dry-run OK for all 6 admin rows; sent to Lovable with parallelization of dashboard/deal/pay/appointments/new-deal |
 | 4 | Dashboard summary + lean lists (plan Phase 2.6) | pending | — | |
 | 5 | Lender Hub off hot path (plan Phase 4) | pending | — | |
 | 6 | Fonts, SW asset cache, bundle (plan Phase 5) | pending | — | |
